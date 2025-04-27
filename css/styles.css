@@ -1,6 +1,16 @@
-body {
+#index {
     width: 50vw;
     height: 50vh;
     margin-top: 25vh;
     margin-left: 25vw;
+}
+
+img {
+    margin-left: 1vw;
+    width: 4vw;
+    height: auto;
+}
+
+p {
+    color: white;
 }

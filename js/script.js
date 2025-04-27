@@ -15,15 +15,24 @@ async function logar() {
         let result = await data.json();
         // save user on LocalStorage
         console.log(result);
-        localStorage.setItem("userLogado", JSON.stringify(result));
-        window.location.href = "home.html";
+        if (result != null && result != "{}"){
+            localStorage.setItem("userLogado", JSON.stringify(result));
+            window.location.href = "home.html";
+        }else
+            alert("VALIDAR: Usuário NÃO existe")
 
     }).catch( error => {
-        console.error("Error" + error);
+        console.error("API error: " + error);
     });
 }
 
-function redirecionar(){
-    alert("Redirecionando...")
-    window.location.href = "https://www.odiloncorrea.com/odinline/login.php";
+function logout() {
+    if(localStorage.getItem("userLogado"))
+        localStorage.removeItem("userLogado");
+}
+
+function setUser() {
+    let user = JSON.parse(localStorage.getItem("userLogado"));
+    document.getElementById("userName").innerText = user.nome;
+    document.getElementsByTagName("h2")[0].innerText = "Olá, " + user.nome;
 }
