@@ -1,6 +1,4 @@
 var api = "https://api-odinline.odiloncorrea.com/";
-// object user: 
-// {id: 6, nome: 'Usuario Teste', login: 'teste', email: 'usuarioTeste@gmail.com', chave: '61589-6'}
 
 // index page
 async function logar() {
@@ -8,8 +6,6 @@ async function logar() {
     let password = $("#password").val();
     let link = api + "usuario/" + login + "/" + password + "/autenticar";
     
-    console.info(link);
-
     const response = await fetch(link)
     .then( async data => {
         let result = await data.json();
@@ -53,7 +49,6 @@ function alertsController() {
 }
 
 function comprarProduto(produto) {
-    alert("Produto " + produto.id + " comprado!");
     if (localStorage.getItem("shopping")) {
         let shopping = JSON.parse(localStorage.getItem("shopping"));
         shopping.push(produto);
@@ -63,9 +58,9 @@ function comprarProduto(produto) {
         vetor.push(produto);
         localStorage.setItem("shopping", JSON.stringify(vetor));
     }
-
-    if (window.location.href == "myShopping.html")
-        window.location.reload(true);
+    
+    alert("Produto " + produto.id + " comprado!");  
+    window.location.reload(true);
 }
 
 // home page
@@ -98,6 +93,8 @@ async function setMyProducts() {
     }).catch( error => {
         console.error("API error: " + error);
     });
+
+    alertsController();
 }
 
 function setProductsTable() {
@@ -142,6 +139,8 @@ async function setPriceAlert() {
 
     if(localStorage.getItem("alerts") && localStorage.getItem("alerts") != "[]")
         setMyAlerts();
+
+    alertsController();
 }
 
 function setMyAlerts() {
@@ -233,4 +232,6 @@ function setMyShopping() {
             newRow.insertCell().textContent = item.valor;
         });
     }
+
+    alertsController();
 }
