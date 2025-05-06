@@ -30,11 +30,51 @@ function logout() {
         localStorage.removeItem("userLogado");
 }
 
+function alertsController() {
+    if (localStorage.getItem("alerts") && localStorage.getItem("alerts") != "[]")
+        setInterval(() => {
+            let alerts = JSON.parse(localStorage.getItem("alerts"));
+            let produtos = JSON.parse(localStorage.getItem("products"));
+
+            alerts.forEach(a => {
+                produtos.forEach( p => {
+                    if (a.idProduto == p.id && a.valorDesejado >= p.valor) {
+                        vetor = alerts.filter(a => a.idProduto != p.id);
+                        localStorage.setItem("alerts", JSON.stringify(vetor));
+
+                        if (a.acao == "Alertar")
+                            alert("AVISO: O produto " + a.idProduto + " está no valor desejado!");
+                        else
+                            comprarProduto(p);
+                    }
+                });
+            });
+        }, 3000);
+}
+
+function comprarProduto(produto) {
+    alert("Produto " + produto.id + " comprado!");
+    if (localStorage.getItem("shopping")) {
+        let shopping = JSON.parse(localStorage.getItem("shopping"));
+        shopping.push(produto);
+        localStorage.setItem("shopping", JSON.stringify(shopping));
+    } else {
+        let vetor = [];
+        vetor.push(produto);
+        localStorage.setItem("shopping", JSON.stringify(vetor));
+    }
+
+    if (window.location.href == "myShopping.html")
+        window.location.reload(true);
+}
+
 // home page
 function setHome() {
     let user = JSON.parse(localStorage.getItem("userLogado"));
     document.getElementById("userName").innerText = user.nome;
     $("h2")[0].innerText = "Olá, " + user.nome;
+
+    alertsController();
 }
 
 // my products page
@@ -107,7 +147,7 @@ async function setPriceAlert() {
 function setMyAlerts() {
     $("form")[0].insertAdjacentHTML("afterend", "<table class='table container mt-2'> </table>");
     $("table")[0].insertAdjacentHTML("afterbegin", "<thead> </thead> <tbody> </tbody>");
-    $("thead")[0].insertAdjacentHTML("afterbegin", "<tr> <th>Código</th> <th>Valor Desejado</th> <th>Ação</th> <th>Status</th> </tr>");
+    $("thead")[0].insertAdjacentHTML("afterbegin", "<tr> <th>Código</th> <th>Valor Desejado</th> <th>Ação</th> <th></th> </tr>");
 
     let alerts = JSON.parse(localStorage.getItem("alerts"));
 
@@ -129,6 +169,12 @@ function addAlert(){
             action = item.value; 
     });
 
+    let retorno = checkCopyAlert(idProduct);
+    if (retorno) {
+        alert("O item "+ retorno.idProduto+" já possui um alerta!");
+        return;
+    }
+
     const newAlert = {
         idProduto: idProduct,
         valorDesejado: price,
@@ -139,7 +185,7 @@ function addAlert(){
     if(!localStorage.getItem("alerts") || localStorage.getItem("alerts") == "[]"){
         $("form")[0].insertAdjacentHTML("afterend", "<table class='table container mt-2'> </table>");
         $("table")[0].insertAdjacentHTML("afterbegin", "<thead> </thead> <tbody> </tbody>");
-        $("thead")[0].insertAdjacentHTML("afterbegin", "<tr> <th>Código</th> <th>Valor Desejado</th> <th>Ação</th> <th>Status</th> </tr>");
+        $("thead")[0].insertAdjacentHTML("afterbegin", "<tr> <th>Código</th> <th>Valor Desejado</th> <th>Ação</th> <th></th> </tr>");
     }else 
         alerts = JSON.parse(localStorage.getItem("alerts"));
     
@@ -154,9 +200,37 @@ function addAlert(){
     "<button class='btn btn-danger' type='button' id=" + newAlert.idProduto + " onclick='deleteAlert(" + newAlert.idProduto + ")'>Deletar</button>";
 }
 
+function checkCopyAlert(id) {
+    if (!localStorage.getItem("alerts") || localStorage.getItem("alers") == "[]")
+        return false;
+    alerts = JSON.parse(localStorage.getItem("alerts"));
+    return alerts.find(a => a.idProduto == id);
+}
+
 function deleteAlert(id) {
     let alerts = JSON.parse(localStorage.getItem("alerts"));
     alerts = alerts.filter(a => a.idProduto != id);
     localStorage.setItem("alerts", JSON.stringify(alerts));
     window.location.reload(true);
+}
+
+// set my shopping page
+function setMyShopping() {
+    let user = JSON.parse(localStorage.getItem("userLogado"));
+    document.getElementById("userName").innerText = user.nome;
+
+    $("h2")[0].innerText = "Minhas Compras";
+
+    if(localStorage.getItem("shopping")) {
+        $("thead")[0].insertAdjacentHTML("afterbegin", "<tr> <th>Código</th> <th>Descrição</th> <th>Valor</th> </tr>");
+
+        let shopping = JSON.parse(localStorage.getItem("shopping"));
+
+        shopping.forEach(item => {
+            let newRow = $("tbody")[0].insertRow();
+            newRow.insertCell().textContent = item.id;
+            newRow.insertCell().textContent = item.descricao;
+            newRow.insertCell().textContent = item.valor;
+        });
+    }
 }
