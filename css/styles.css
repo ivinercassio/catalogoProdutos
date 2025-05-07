@@ -19,3 +19,9 @@ option {
     color:black;
 }
 
+label.error {
+    color: red;
+    font-size: smaller;
+    padding: 2px 5px;
+}
+

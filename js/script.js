@@ -1,23 +1,53 @@
 var api = "https://api-odinline.odiloncorrea.com/";
 
 // index page
-async function logar() {
-    let login = $("#login").val();
-    let password = $("#password").val();
-    let link = api + "usuario/" + login + "/" + password + "/autenticar";
-    
-    const response = await fetch(link)
-    .then( async data => {
-        let result = await data.json();
-        if (result != null && result != "{}"){
-            localStorage.setItem("userLogado", JSON.stringify(result));
-            window.location.href = "home.html";
-        }else
-            alert("VALIDAR: Usuário NÃO existe");
+$(document).ready(function() {
+    $('#price').mask("#,##0.00", {reverse: true});
 
-    }).catch( error => {
-        console.error("API error: " + error);
+    $("#form1").validate({
+        rules: {
+          login: { required: true },
+          password: { required: true }
+        },
+        messages: {
+          login: { required: "Campo obrigatório" },
+          password: { required: "Campo obrigatório" }
+        }
     });
+
+    $("#form2").validate({
+        rules: {
+            product: { required: true },
+            price: { required: true, min: 0},
+            action: { required: true },
+        },
+        messages: {
+            product: { required: "Campo obrigatório" },
+            price: { required: "Campo obrigatório", min: "Valor inválido" },
+            action: { required: "Campo obrigatório" },
+        }
+    });
+});
+
+async function logar() {
+    if ($("#form1").valid()) {
+        let login = $("#login").val();
+        let password = $("#password").val();
+        let link = api + "usuario/" + login + "/" + password + "/autenticar";
+        
+        const response = await fetch(link)
+        .then( async data => {
+            let result = await data.json();
+            if (result != null && result != "{}"){
+                localStorage.setItem("userLogado", JSON.stringify(result));
+                window.location.href = "home.html";
+            }else
+                alert("Usuário ou senha incorretos");
+
+        }).catch( error => {
+            console.error("API error: " + error);
+        });
+    } 
 }
 
 // all pages
@@ -104,7 +134,7 @@ function setProductsTable() {
         let newRow = $("tbody")[0].insertRow();
         newRow.insertCell().textContent = item.id;  
         newRow.insertCell().textContent = item.descricao;
-        newRow.insertCell().textContent = item.valor;
+        newRow.insertCell().textContent = "R$" + item.valor;
         newRow.insertCell().innerHTML = "<img src=" + item.urlImagem + "/>";
     });
 }
@@ -153,7 +183,7 @@ function setMyAlerts() {
     alerts.forEach(item => {
         let newRow = $("tbody")[0].insertRow();
         newRow.insertCell().textContent = item.idProduto;
-        newRow.insertCell().textContent = item.valorDesejado;
+        newRow.insertCell().textContent = "R$" + item.valorDesejado;
         newRow.insertCell().textContent = item.acao;
         newRow.insertCell().innerHTML = 
         "<button class='btn btn-danger' type='button' id=" + item.idProduto + " onclick='deleteAlert(" + item.idProduto + ")'>Deletar</button>";
@@ -161,6 +191,9 @@ function setMyAlerts() {
 }
 
 function addAlert(){
+    if(!$("#form2").valid())
+        return;
+
     let idProduct = $("#product").val();
     let price = $("#price").val();
     document.getElementsByName("action").forEach( item => {
@@ -193,10 +226,14 @@ function addAlert(){
 
     let newRow = $("tbody")[0].insertRow();
     newRow.insertCell().textContent = newAlert.idProduto;
-    newRow.insertCell().textContent = newAlert.valorDesejado;
+    newRow.insertCell().textContent = "R$" + newAlert.valorDesejado;
     newRow.insertCell().textContent = newAlert.acao;
     newRow.insertCell().innerHTML = 
     "<button class='btn btn-danger' type='button' id=" + newAlert.idProduto + " onclick='deleteAlert(" + newAlert.idProduto + ")'>Deletar</button>";
+
+    $("#product").val("");
+    $("#price").val("");
+    $("#action").val("");
 }
 
 function checkCopyAlert(id) {
@@ -229,7 +266,7 @@ function setMyShopping() {
             let newRow = $("tbody")[0].insertRow();
             newRow.insertCell().textContent = item.id;
             newRow.insertCell().textContent = item.descricao;
-            newRow.insertCell().textContent = item.valor;
+            newRow.insertCell().textContent = "R$" + item.valor;
         });
     }
 
