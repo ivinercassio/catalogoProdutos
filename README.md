@@ -7,4 +7,5 @@ Catálogo de Produtos: aplicação web que faz uso de uma api e oferece as funci
 Link da hospedagem: https://catalogoproduto.netlify.app/
 
 Tecnologias: HTML, CSS, JavaScript, Bootstrap, Jquery
+
 Exercício proposto na disciplina de Desenvolvimento de Sistemas, curso Eng de Computação, 2025.
